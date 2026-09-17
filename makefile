@@ -10,8 +10,10 @@ ODIR=obj
 
 
 # Create list of object file paths from their names
-_OBJ = main.o glad.o
+_OBJ = main.o glad.o utils/file_utils.o backends/graphics/opengl_backend.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
+
+# TODO: Generate all needed folders for obj files
 
 
 $(ODIR)/%.o: $(SOURCE_DIR)/%.c
