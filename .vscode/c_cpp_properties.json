@@ -1,0 +1,31 @@
+{
+    "env": {
+        "myIncludePath": [
+            "${workspaceFolder}/include",
+            "${workspaceFolder}/src",
+            "D:\\main\\others\\includes"
+        ]
+    },
+    "configurations": [
+        {
+            "name": "Windows",
+            "compilerPath": "D:\\main\\others\\applications\\gcc\\windows\\w64devkit\\w64devkit\\bin\\gcc.exe",
+            "intelliSenseMode": "macos-clang-x64",
+            "includePath": [
+                "${myIncludePath}"
+            ],
+            "defines": [
+                "${myDefines}"
+            ],
+            "cStandard": "c17",
+            "browse": {
+                "path": [
+                    "${myIncludePath}",
+                    "${workspaceFolder}"
+                ]
+            },
+            "cppStandard": "gnu++20"
+        }
+    ],
+    "version": 4
+}
