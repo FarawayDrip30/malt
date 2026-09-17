@@ -13,17 +13,17 @@ ODIR=obj
 _OBJ = main.o glad.o utils/file_utils.o backends/graphics/opengl_backend.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-# TODO: Generate all needed folders for obj files
-
 
 $(ODIR)/%.o: $(SOURCE_DIR)/%.c
+	mkdir -p $(dir $@)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 malt.exe: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
-# Delete all object file if "make clean" is ran
+
 .PHONY: clean
 
+# Delete all object file if "make clean" is ran
 clean:
 	rm -rf %(ODIR)/*.o
