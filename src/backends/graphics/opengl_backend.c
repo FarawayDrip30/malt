@@ -24,6 +24,9 @@ unsigned int indices[] = {  // note that we start from 0!
 char vertex_shader_source[1024];
 char fragment_shader_source[1024];
 
+unsigned int shader_program;
+unsigned int VAO;
+
 void load_shaders(){
     load_string_from_file(vertex_shader_source, "res/shaders/vertex_shader.glsl", 1024);
     load_string_from_file(fragment_shader_source, "res/shaders/fragment_shader.glsl", 1024);
@@ -54,7 +57,7 @@ unsigned int generate_shader_program(){
     // Make fragment shader from fragment_shader_source
     unsigned int fragment_shader = generate_shader(GL_FRAGMENT_SHADER, fragment_shader_source);
 
-    unsigned int shader_program;
+    //unsigned int shader_program;
     shader_program = glCreateProgram();
     glAttachShader(shader_program, vertex_shader);
     glAttachShader(shader_program, fragment_shader);
@@ -78,7 +81,7 @@ unsigned int generate_VAO(){
     // Vertex Array Object
     // Contains enable/disable vertexattribarray, vertex attribute configs,
     // and attribute pointers to attributes in VBOs
-    unsigned int VAO;
+    //unsigned int VAO;
     glGenVertexArrays(1, &VAO);
 
     // All stuff below is bounded to this VAO now.
@@ -113,7 +116,8 @@ unsigned int generate_VAO(){
     return VAO;
 }
 
-int initialise_opengl(){
+GLFWwindow* opengl_window;
+int opengl_initialise(){
     load_shaders();
 
     // Init GLFW, tell it what OpenGL Version & Mode we're using
@@ -123,9 +127,9 @@ int initialise_opengl(){
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Create GLFW window
-    GLFWwindow* window = glfwCreateWindow(800, 600, "malt", NULL, NULL);
-    if(window == NULL){ printf("Failed to Create GLFW Widnow\n"); glfwTerminate(); return -1; }
-    glfwMakeContextCurrent(window);
+    opengl_window = glfwCreateWindow(800, 600, "malt", NULL, NULL);
+    if(opengl_window == NULL){ printf("Failed to Create GLFW Widnow\n"); glfwTerminate(); return -1; }
+    glfwMakeContextCurrent(opengl_window);
 
     // Init GLAD
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) { printf("Failed to Initialise GLAD\n"); return -1; }
@@ -133,34 +137,38 @@ int initialise_opengl(){
     // Tell OpenGL how big the window is
     glViewport(0, 0, 800, 600);
     // Function to call on window resize
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetFramebufferSizeCallback(opengl_window, framebuffer_size_callback);
 
     unsigned int shader_program = generate_shader_program();
     glUseProgram(shader_program);
 
     unsigned int VAO = generate_VAO();
+}
 
+void opengl_renderloop(){
+    processInput(opengl_window);
+
+    // Render
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
     
-    while(!glfwWindowShouldClose(window)){
-        processInput(window);
-
-        // Render
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        glUseProgram(shader_program);
+    glUseProgram(shader_program);
         
-        glBindVertexArray(VAO);
-        
-        // We're drawing 2 triangles (6 indices), indices are ints, no offset.
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(VAO);
+    
+    // We're drawing 2 triangles (6 indices), indices are ints, no offset.
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
+    glfwSwapBuffers(opengl_window);
+    glfwPollEvents();
+}
 
+void opengl_terminate(){
     glfwTerminate();
+}
 
+bool opengl_should_close(){
+    return glfwWindowShouldClose(opengl_window);
 }
 
 

@@ -10,7 +10,7 @@ ODIR=obj
 
 
 # Create list of object file paths from their names
-_OBJ = main.o glad.o utils/file_utils.o backends/graphics/opengl_backend.o
+_OBJ = main.o glad.o utils/file_utils.o backends/graphics/opengl_backend.o backends/graphics/graphics_handler.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 
@@ -26,4 +26,4 @@ malt.exe: $(OBJ)
 
 # Delete all object file if "make clean" is ran
 clean:
-	rm -rf %(ODIR)/*.o
+	rm -f $(ODIR)/*.o
