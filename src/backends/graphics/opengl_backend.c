@@ -31,12 +31,12 @@ char fragment_shader_source[1024];
 unsigned int shader_program;
 unsigned int VAO;
 
-void load_shaders(){
+void opengl_load_shaders(){
     load_string_from_file(vertex_shader_source, "res/shaders/vertex_shader.glsl", 1024);
     load_string_from_file(fragment_shader_source, "res/shaders/fragment_shader.glsl", 1024);
 }
 
-unsigned int generate_shader(GLenum shader_type, char *shader_source){
+unsigned int opengl_generate_shader(GLenum shader_type, char *shader_source){
     unsigned int shader;
     shader = glCreateShader(shader_type);
     glShaderSource(shader, 1, & (const char*) { shader_source }, NULL);
@@ -55,11 +55,11 @@ unsigned int generate_shader(GLenum shader_type, char *shader_source){
     return shader;
 }
 
-unsigned int generate_shader_program(){
+unsigned int opengl_generate_shader_program(){
     // Make vertex shader from vertex_shader_source
-    unsigned int vertex_shader = generate_shader(GL_VERTEX_SHADER, vertex_shader_source);
+    unsigned int vertex_shader = opengl_generate_shader(GL_VERTEX_SHADER, vertex_shader_source);
     // Make fragment shader from fragment_shader_source
-    unsigned int fragment_shader = generate_shader(GL_FRAGMENT_SHADER, fragment_shader_source);
+    unsigned int fragment_shader = opengl_generate_shader(GL_FRAGMENT_SHADER, fragment_shader_source);
 
     //unsigned int shader_program;
     shader_program = glCreateProgram();
@@ -81,7 +81,7 @@ unsigned int generate_shader_program(){
     return shader_program;
 }
 
-unsigned int generate_VAO(){
+unsigned int opengl_generate_VAO(){
     // Vertex Array Object
     // Contains enable/disable vertexattribarray, vertex attribute configs,
     // and attribute pointers to attributes in VBOs
@@ -122,10 +122,29 @@ unsigned int generate_VAO(){
     return VAO;
 }
 
+unsigned int opengl_generate_texture(char* tex_path){
+    // Load texture from file
+    int tex_width, tex_height, tex_nrChannels;
+    unsigned char* tex_data = stbi_load(tex_path, &tex_width, &tex_height, &tex_nrChannels, 0); 
+    if(!tex_data){ printf("Failed to load texture."); }
+
+    // Generate texture
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    // Is texture 2d, mipmaps (we aren't manually adding them so 0), format, width, height, legacy shit, format of source image, datatype of source image, image data
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex_data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(tex_data);
+
+    return texture;
+}
+
 GLFWwindow* opengl_window;
-unsigned int texture;
+unsigned int wall_texture;
 int opengl_initialise(){
-    load_shaders();
+    opengl_load_shaders();
 
     // Init GLFW, tell it what OpenGL Version & Mode we're using
     glfwInit();
@@ -154,24 +173,12 @@ int opengl_initialise(){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    // Load texture
-    int tex_width, tex_height, tex_nrChannels;
-    unsigned char* tex_data = stbi_load("res/img/wall.jpg", &tex_width, &tex_height, &tex_nrChannels, 0); 
-    if(!tex_data){ printf("Failed to load texture."); }
+    wall_texture = opengl_generate_texture("res/img/wall.jpg");
 
-    // Generate texture
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    // Is texture 2d, mipmaps (we aren't manually adding them so 0), format, width, height, legacy shit, format of source image, datatype of source image, image data
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex_data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    stbi_image_free(tex_data);
-
-    unsigned int shader_program = generate_shader_program();
+    unsigned int shader_program = opengl_generate_shader_program();
     glUseProgram(shader_program);
 
-    unsigned int VAO = generate_VAO();
+    unsigned int VAO = opengl_generate_VAO();
 }
 
 void opengl_renderloop(){
@@ -183,7 +190,7 @@ void opengl_renderloop(){
     
     glUseProgram(shader_program);
     
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, wall_texture);
 
     glBindVertexArray(VAO);
     
