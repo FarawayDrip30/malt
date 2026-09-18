@@ -7,17 +7,21 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <utils/file_utils.h>
-#include <backends/graphics/opengl_backend.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+#include "utils/file_utils.h"
+#include "backends/graphics/opengl_backend.h"
+
 
 float vertices[] = {
-    // positions         // colors
-     0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
-    -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
-     0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top 
+    // positions         // colors          // texture coordinates
+     0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 1.0f,     // bottom right
+    -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f,     // bottom left
+     0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  0.5f, 0.0f,     // top 
 };
 unsigned int indices[] = {  // note that we start from 0!
-    0, 1, 3,  // first Triangle
+    0, 1, 2,  // first Triangle
     //1, 2, 3   // second Triangle
 };
 
@@ -105,11 +109,13 @@ unsigned int generate_VAO(){
 
     // Arguments:
     // Which attribute position we want to configure (data will go into the shader in layout (location = 0) e.g. in vertex shader),
-    // Vec3, Data type, Normalize, stride, offset from where data begins
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
+    // Index, Vec3, Data type, Normalize, stride, offset from where data begins
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3*sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6*sizeof(float)));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
 
     glBindVertexArray(0);
 
@@ -117,6 +123,7 @@ unsigned int generate_VAO(){
 }
 
 GLFWwindow* opengl_window;
+unsigned int texture;
 int opengl_initialise(){
     load_shaders();
 
@@ -139,6 +146,28 @@ int opengl_initialise(){
     // Function to call on window resize
     glfwSetFramebufferSizeCallback(opengl_window, framebuffer_size_callback);
 
+    // Set texture settings
+    // Textures repeat
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // Texture scaling (minifying, magnifying)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    // Load texture
+    int tex_width, tex_height, tex_nrChannels;
+    unsigned char* tex_data = stbi_load("res/img/wall.jpg", &tex_width, &tex_height, &tex_nrChannels, 0); 
+    if(!tex_data){ printf("Failed to load texture."); }
+
+    // Generate texture
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    // Is texture 2d, mipmaps (we aren't manually adding them so 0), format, width, height, legacy shit, format of source image, datatype of source image, image data
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex_data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(tex_data);
+
     unsigned int shader_program = generate_shader_program();
     glUseProgram(shader_program);
 
@@ -153,7 +182,9 @@ void opengl_renderloop(){
     glClear(GL_COLOR_BUFFER_BIT);
     
     glUseProgram(shader_program);
-        
+    
+    glBindTexture(GL_TEXTURE_2D, texture);
+
     glBindVertexArray(VAO);
     
     // We're drawing 2 triangles (6 indices), indices are ints, no offset.
