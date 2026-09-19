@@ -156,6 +156,7 @@ GLFWwindow* opengl_window;
 unsigned int wall_texture;
 unsigned int awesomeface_texture;
 unsigned int transform_loc;
+struct GameObject* player;
 
 int opengl_initialise(){
     opengl_load_shaders();
@@ -211,6 +212,8 @@ int opengl_initialise(){
     */
 
     transform_loc = glGetUniformLocation(shader_program, "transform");
+
+    player = create_gameobject();
 }
 
 
@@ -221,6 +224,7 @@ void opengl_renderloop(){
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     
+    /*
     mat4 trans;
     glm_mat4_identity(trans);
     vec3 rot_axis = {0.0f, 0.0f, 1.0f};
@@ -229,8 +233,11 @@ void opengl_renderloop(){
     glm_rotate(trans, (float)glfwGetTime(), rot_axis);
     glm_scale(trans, scale);
     glm_translate(trans, translate);
+    */
 
-    glUniformMatrix4fv(transform_loc, 1, GL_FALSE, (float*) trans);
+    set_gameobject_pos(player, 0, sin((float)glfwGetTime()));
+    
+    opengl_render_gameobject(player);
 
     glUseProgram(shader_program);
     
@@ -250,6 +257,18 @@ void opengl_renderloop(){
 
 void opengl_terminate(){
     glfwTerminate();
+}
+
+
+vec3 z_axis_rot = {0.0f, 0.0f, 1.0f};
+void opengl_render_gameobject(struct GameObject* go){
+    mat4 trans;
+    glm_mat4_copy(go->trans_mat, trans);
+    glm_rotate(trans, go->rot, z_axis_rot);
+
+    //glm_mat4_print(trans, stdout);
+
+    glUniformMatrix4fv(transform_loc, 1, GL_FALSE, (float*) trans);
 }
 
 bool opengl_should_close(){
