@@ -81,7 +81,7 @@ unsigned int opengl_generate_shader_program(){
     return shader_program;
 }
 
-unsigned int opengl_generate_VAO(){
+unsigned int opengl_generate_vao(){
     // Vertex Array Object
     // Contains enable/disable vertexattribarray, vertex attribute configs,
     // and attribute pointers to attributes in VBOs
@@ -137,9 +137,26 @@ unsigned int opengl_generate_texture(char* tex_path){
     glGenerateMipmap(GL_TEXTURE_2D);
 
     stbi_image_free(tex_data);
-
+    
     return texture;
 }
+
+/*
+unsigned int opengl_get_texture_data(unsigned int texture){
+    uint8_t pixel_array[24];
+    glGetTextureImage(texture, 0, GL_RGB, GL_BYTE, 24, pixel_array);
+    for(int i = 0; i < sizeof(pixel_array)/sizeof(uint8_t); i++){
+        printf("%i", pixel_array[i]);
+    }
+}
+
+unsigned int opengl_generate_pbo(){
+    unsigned int PBO;
+    glGenBuffers(1, &PBO);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, PBO);
+    gl
+}
+    */
 
 GLFWwindow* opengl_window;
 unsigned int wall_texture;
@@ -174,11 +191,12 @@ int opengl_initialise(){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     wall_texture = opengl_generate_texture("res/img/wall.jpg");
+    opengl_generate_texture("res/img/read_test.png");
 
     unsigned int shader_program = opengl_generate_shader_program();
     glUseProgram(shader_program);
 
-    unsigned int VAO = opengl_generate_VAO();
+    unsigned int VAO = opengl_generate_vao();
 }
 
 void opengl_renderloop(){
