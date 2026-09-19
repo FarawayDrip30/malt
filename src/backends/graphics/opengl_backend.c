@@ -3,9 +3,11 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <cglm/cglm.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -153,6 +155,8 @@ unsigned int opengl_generate_texture(char* tex_path){
 GLFWwindow* opengl_window;
 unsigned int wall_texture;
 unsigned int awesomeface_texture;
+unsigned int transform_loc;
+
 int opengl_initialise(){
     opengl_load_shaders();
 
@@ -163,7 +167,7 @@ int opengl_initialise(){
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Create GLFW window
-    opengl_window = glfwCreateWindow(800, 600, "malt", NULL, NULL);
+    opengl_window = glfwCreateWindow(600, 600, "malt", NULL, NULL);
     if(opengl_window == NULL){ printf("Failed to Create GLFW Widnow\n"); glfwTerminate(); return -1; }
     glfwMakeContextCurrent(opengl_window);
 
@@ -171,7 +175,7 @@ int opengl_initialise(){
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) { printf("Failed to Initialise GLAD\n"); return -1; }
 
     // Tell OpenGL how big the window is
-    glViewport(0, 0, 800, 600);
+    glViewport(0, 0, 600, 600);
     // Function to call on window resize
     glfwSetFramebufferSizeCallback(opengl_window, framebuffer_size_callback);
 
@@ -190,12 +194,25 @@ int opengl_initialise(){
     unsigned int shader_program = opengl_generate_shader_program();
     glUseProgram(shader_program);
 
-    // Set which GL_TEXTURE0 each shader variable maps to (i think?)
+    // Set which GL_TEXTUREX each shader variable maps to
     glUniform1i(glGetUniformLocation(shader_program, "texture1"), 0);
     glUniform1i(glGetUniformLocation(shader_program, "texture2"), 1);
 
     unsigned int VAO = opengl_generate_vao();
+
+    /*
+    vec4 vec = {1.0f, 0.0f, 0.0f, 1.0f};
+    mat4 trans;
+    glm_mat4_identity(trans);
+    vec3 trans_vec = {1.0f, 1.0f, 0.0f};
+    glm_translate(trans, trans_vec);
+    glm_mat4_mulv(trans, vec, vec);
+    glm_vec4_print(vec, stdout);
+    */
+
+    transform_loc = glGetUniformLocation(shader_program, "transform");
 }
+
 
 void opengl_renderloop(){
     processInput(opengl_window);
@@ -204,6 +221,15 @@ void opengl_renderloop(){
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     
+    mat4 trans;
+    glm_mat4_identity(trans);
+    vec3 rot_axis = {0.0f, 0.0f, 1.0f};
+    vec3 scale = {0.5f, 0.5f, 0.5f};
+    glm_rotate(trans, (float)glfwGetTime(), rot_axis);
+    glm_scale(trans, scale);
+
+    glUniformMatrix4fv(transform_loc, 1, GL_FALSE, (float*) trans);
+
     glUseProgram(shader_program);
     
     glActiveTexture(GL_TEXTURE0);
