@@ -224,9 +224,11 @@ void opengl_renderloop(){
     mat4 trans;
     glm_mat4_identity(trans);
     vec3 rot_axis = {0.0f, 0.0f, 1.0f};
-    vec3 scale = {0.5f, 0.5f, 0.5f};
+    vec3 scale = {sin(glfwGetTime()), sin(glfwGetTime()), 1.0f};
+    vec3 translate = {sin(glfwGetTime()), sin(glfwGetTime()), 1.0f};
     glm_rotate(trans, (float)glfwGetTime(), rot_axis);
     glm_scale(trans, scale);
+    glm_translate(trans, translate);
 
     glUniformMatrix4fv(transform_loc, 1, GL_FALSE, (float*) trans);
 
