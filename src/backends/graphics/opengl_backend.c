@@ -239,18 +239,6 @@ void opengl_renderloop(){
     
     opengl_render_gameobject(player);
 
-    glUseProgram(shader_program);
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, wall_texture);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, awesomeface_texture);
-
-    glBindVertexArray(VAO);
-    
-    // We're drawing 2 triangles (6 indices), indices are ints, no offset.
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
     glfwSwapBuffers(opengl_window);
     glfwPollEvents();
 }
@@ -269,6 +257,18 @@ void opengl_render_gameobject(struct GameObject* go){
     //glm_mat4_print(trans, stdout);
 
     glUniformMatrix4fv(transform_loc, 1, GL_FALSE, (float*) trans);
+
+    glUseProgram(shader_program);
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, wall_texture);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, awesomeface_texture);
+
+    glBindVertexArray(VAO);
+    
+    // We're drawing 2 triangles (6 indices), indices are ints, no offset.
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 bool opengl_should_close(){
