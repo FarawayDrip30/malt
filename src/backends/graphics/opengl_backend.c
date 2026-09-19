@@ -132,8 +132,17 @@ unsigned int opengl_generate_texture(char* tex_path){
     unsigned int texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
-    // Is texture 2d, mipmaps (we aren't manually adding them so 0), format, width, height, legacy shit, format of source image, datatype of source image, image data
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex_data);
+
+    GLenum img_format;
+    if(tex_nrChannels == 3){
+        img_format = GL_RGB;
+    }
+    else{
+        img_format = GL_RGBA;
+    }
+
+    // Is texture 2d, mipmaps (we aren't manually adding them so 0), format, width, height, legacy shit, format of source image (e.g. GL_RGB), datatype of source image, image data
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, img_format, GL_UNSIGNED_BYTE, tex_data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
     stbi_image_free(tex_data);
@@ -141,25 +150,9 @@ unsigned int opengl_generate_texture(char* tex_path){
     return texture;
 }
 
-/*
-unsigned int opengl_get_texture_data(unsigned int texture){
-    uint8_t pixel_array[24];
-    glGetTextureImage(texture, 0, GL_RGB, GL_BYTE, 24, pixel_array);
-    for(int i = 0; i < sizeof(pixel_array)/sizeof(uint8_t); i++){
-        printf("%i", pixel_array[i]);
-    }
-}
-
-unsigned int opengl_generate_pbo(){
-    unsigned int PBO;
-    glGenBuffers(1, &PBO);
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, PBO);
-    gl
-}
-    */
-
 GLFWwindow* opengl_window;
 unsigned int wall_texture;
+unsigned int awesomeface_texture;
 int opengl_initialise(){
     opengl_load_shaders();
 
@@ -191,10 +184,15 @@ int opengl_initialise(){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     wall_texture = opengl_generate_texture("res/img/wall.jpg");
-    opengl_generate_texture("res/img/read_test.png");
+    //opengl_generate_texture("res/img/read_test.png");
+    awesomeface_texture = opengl_generate_texture("res/img/awesomeface.png");
 
     unsigned int shader_program = opengl_generate_shader_program();
     glUseProgram(shader_program);
+
+    // Set which GL_TEXTURE0 each shader variable maps to (i think?)
+    glUniform1i(glGetUniformLocation(shader_program, "texture1"), 0);
+    glUniform1i(glGetUniformLocation(shader_program, "texture2"), 1);
 
     unsigned int VAO = opengl_generate_vao();
 }
@@ -208,7 +206,10 @@ void opengl_renderloop(){
     
     glUseProgram(shader_program);
     
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, wall_texture);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, awesomeface_texture);
 
     glBindVertexArray(VAO);
     
