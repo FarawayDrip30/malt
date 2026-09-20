@@ -9,11 +9,9 @@
 #include <GLFW/glfw3.h>
 #include <cglm/cglm.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 #include "utils/file_utils.h"
 #include "backends/graphics/opengl_backend.h"
+#include "backends/graphics/graphics_handler.h"
 
 
 float vertices[] = {
@@ -124,19 +122,14 @@ unsigned int opengl_generate_vao(){
     return VAO;
 }
 
-unsigned int opengl_generate_texture(char* tex_path){
-    // Load texture from file
-    int tex_width, tex_height, tex_nrChannels;
-    unsigned char* tex_data = stbi_load(tex_path, &tex_width, &tex_height, &tex_nrChannels, 0); 
-    if(!tex_data){ printf("Failed to load texture."); }
-
+unsigned int opengl_generate_texture(struct TextureData* texture_data){
     // Generate texture
     unsigned int texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
 
     GLenum img_format;
-    if(tex_nrChannels == 3){
+    if(texture_data->nr_channels == 3){
         img_format = GL_RGB;
     }
     else{
@@ -144,11 +137,9 @@ unsigned int opengl_generate_texture(char* tex_path){
     }
 
     // Is texture 2d, mipmaps (we aren't manually adding them so 0), format, width, height, legacy shit, format of source image (e.g. GL_RGB), datatype of source image, image data
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, img_format, GL_UNSIGNED_BYTE, tex_data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture_data->width, texture_data->height, 0, img_format, GL_UNSIGNED_BYTE, texture_data->data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    stbi_image_free(tex_data);
-    
     return texture;
 }
 
@@ -156,7 +147,6 @@ GLFWwindow* opengl_window;
 unsigned int wall_texture;
 unsigned int awesomeface_texture;
 unsigned int transform_loc;
-struct GameObject* player;
 
 int opengl_initialise(){
     opengl_load_shaders();
@@ -188,16 +178,16 @@ int opengl_initialise(){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    wall_texture = opengl_generate_texture("res/img/wall.jpg");
+    //wall_texture = opengl_generate_texture("res/img/wall.jpg");
     //opengl_generate_texture("res/img/read_test.png");
-    awesomeface_texture = opengl_generate_texture("res/img/awesomeface.png");
+    //awesomeface_texture = opengl_generate_texture("res/img/awesomeface.png");
 
     unsigned int shader_program = opengl_generate_shader_program();
     glUseProgram(shader_program);
 
     // Set which GL_TEXTUREX each shader variable maps to
     glUniform1i(glGetUniformLocation(shader_program, "texture1"), 0);
-    glUniform1i(glGetUniformLocation(shader_program, "texture2"), 1);
+    //glUniform1i(glGetUniformLocation(shader_program, "texture2"), 1);
 
     unsigned int VAO = opengl_generate_vao();
 
@@ -212,33 +202,17 @@ int opengl_initialise(){
     */
 
     transform_loc = glGetUniformLocation(shader_program, "transform");
-
-    player = create_gameobject();
 }
 
 
-void opengl_renderloop(){
+void opengl_render_start(){
     processInput(opengl_window);
 
-    // Render
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    
-    /*
-    mat4 trans;
-    glm_mat4_identity(trans);
-    vec3 rot_axis = {0.0f, 0.0f, 1.0f};
-    vec3 scale = {sin(glfwGetTime()), sin(glfwGetTime()), 1.0f};
-    vec3 translate = {sin(glfwGetTime()), sin(glfwGetTime()), 1.0f};
-    glm_rotate(trans, (float)glfwGetTime(), rot_axis);
-    glm_scale(trans, scale);
-    glm_translate(trans, translate);
-    */
+}
 
-    set_gameobject_pos(player, 0, sin((float)glfwGetTime()));
-    
-    opengl_render_gameobject(player);
-
+void opengl_render_finish(){
     glfwSwapBuffers(opengl_window);
     glfwPollEvents();
 }
@@ -261,14 +235,11 @@ void opengl_render_gameobject(struct GameObject* go){
     glUseProgram(shader_program);
     
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, wall_texture);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, awesomeface_texture);
+    glBindTexture(GL_TEXTURE_2D, go->tex_id);
 
     glBindVertexArray(VAO);
     
-    // We're drawing 2 triangles (6 indices), indices are ints, no offset.
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 }
 
 bool opengl_should_close(){

@@ -1,16 +1,39 @@
 #include <stdio.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include "backends/graphics/graphics_handler.h"
 #include "backends/graphics/opengl_backend.h"
 
+
 struct GraphicsHandler opengl_graphics = {
     &opengl_initialise,
-    &opengl_renderloop,
+    &opengl_render_start,
+    &opengl_render_finish,
     &opengl_terminate,
+
+    &opengl_generate_texture,
+    &opengl_render_gameobject,
 
     &opengl_should_close,
 };
 
+struct TextureData* load_texture_data(char* texture_path){
+    struct TextureData* out = (struct TextureData*) malloc(sizeof(struct TextureData));
+
+    // Load texture from file
+    out->data = stbi_load(texture_path, &out->width, &out->height, &out->nr_channels, 0); 
+    if(!out->data){ printf("Failed to load texture."); }
+
+    return out;
+}
+
+void free_texture_data(struct TextureData* texture_data){
+    stbi_image_free(texture_data->data);
+    
+    free(texture_data);
+}
 
 struct RGBAPixel get_pixel_from_texture_data(struct TextureData texture_data, int x, int y){
     if(x < 0 || y < 0 || x > texture_data.width || y > texture_data.height){

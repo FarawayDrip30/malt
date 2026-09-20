@@ -5,6 +5,6 @@ struct GameObject{
     unsigned int tex_id;
 };
 
-struct GameObject* create_gameobject();
+struct GameObject* create_gameobject(float x, float y, float rot, unsigned int mesh_id, unsigned int tex_id);
 
 void set_gameobject_pos(struct GameObject* go, float x, float y);
