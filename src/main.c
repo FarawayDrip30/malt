@@ -21,7 +21,7 @@ int main(){
 
     while(!graphics_handler->should_window_close()){
         // Update
-        set_gameobject_pos(player, 0, sin((float)time(NULL)));
+        set_gameobject_pos(player, 0, sin(time(NULL)));
 
         // Render
         graphics_handler->render_start();

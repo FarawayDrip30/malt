@@ -1,3 +1,5 @@
+#include <cglm/cglm.h>
+
 struct GameObject{
     mat4 trans_mat;
     float rot;

@@ -3,6 +3,13 @@
 
 #include "gameobject.h"
 
+struct TextureData{
+    int width;
+    int height;
+    int nr_channels;
+
+    unsigned char* data;
+};
 
 struct GraphicsHandler{
     int (*initialise)();
@@ -16,13 +23,7 @@ struct GraphicsHandler{
     bool (*should_window_close)();
 };
 
-struct TextureData{
-    int width;
-    int height;
-    int nr_channels;
 
-    unsigned char* data;
-};
 
 struct TextureData* load_texture_data(char* texture_path);
 void free_texture_data(struct TextureData* texture_data);
