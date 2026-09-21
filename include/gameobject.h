@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cglm/cglm.h>
 
 struct GameObject{

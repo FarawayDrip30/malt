@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdbool.h>
 
 #include <glad/glad.h>
