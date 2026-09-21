@@ -10,7 +10,7 @@ ODIR=obj
 
 
 # Create list of object file paths from their names
-_OBJ = main.o glad.o gameobject.o utils/file_utils.o backends/graphics/opengl_backend.o backends/graphics/graphics_handler.o 
+_OBJ = main.o glad.o gameobject.o utils/file_utils.o backends/graphics/opengl_backend.o backends/graphics/graphics_handler.o backends/input/glfw_input.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 

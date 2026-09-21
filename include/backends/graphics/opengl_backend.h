@@ -9,6 +9,10 @@
 #include "gameobject.h"
 #include "backends/graphics/graphics_handler.h"
 
+
+extern GLFWwindow* opengl_window;
+
+
 void framebuffer_size_callback(GLFWwindow* _window, int width, int height);
 void processInput(GLFWwindow *_window);
 

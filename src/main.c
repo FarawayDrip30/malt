@@ -3,7 +3,8 @@
 #include <math.h>
 #include <time.h>
 
-#include <backends/graphics/graphics_handler.h>
+#include "backends/graphics/graphics_handler.h"
+#include "backends/input/glfw_input.h"
 
 
 struct GameObject* player;
@@ -14,6 +15,8 @@ int main(){
     struct GraphicsHandler* graphics_handler = &opengl_graphics;
 
     graphics_handler->initialise();
+
+    glfw_input_initialise();
 
     struct TextureData* player_tex_data = load_texture_data("res/img/wall.jpg");
     unsigned int player_tex_id = graphics_handler->generate_texture(player_tex_data);
