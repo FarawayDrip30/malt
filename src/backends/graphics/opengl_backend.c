@@ -13,6 +13,12 @@
 #include "backends/graphics/opengl_backend.h"
 #include "backends/graphics/graphics_handler.h"
 
+const int viewport_width = 600;
+const int viewport_height = 600;
+
+vec3 camera_scale = { 1.0f, 1.0f, 1.0f };
+// Ensures window size does not affect scale
+vec3 camera_window_scale = { 1.0f, 1.0f, 1.0f };
 
 float vertices[] = {
     // positions         // colors          // texture coordinates
@@ -144,9 +150,8 @@ unsigned int opengl_generate_texture(struct TextureData* texture_data){
 }
 
 GLFWwindow* opengl_window;
-unsigned int wall_texture;
-unsigned int awesomeface_texture;
-unsigned int transform_loc;
+unsigned int model_matrix_loc;
+unsigned int view_matrix_loc;
 
 int opengl_initialise(){
     opengl_load_shaders();
@@ -191,17 +196,8 @@ int opengl_initialise(){
 
     unsigned int VAO = opengl_generate_vao();
 
-    /*
-    vec4 vec = {1.0f, 0.0f, 0.0f, 1.0f};
-    mat4 trans;
-    glm_mat4_identity(trans);
-    vec3 trans_vec = {1.0f, 1.0f, 0.0f};
-    glm_translate(trans, trans_vec);
-    glm_mat4_mulv(trans, vec, vec);
-    glm_vec4_print(vec, stdout);
-    */
-
-    transform_loc = glGetUniformLocation(shader_program, "transform");
+    model_matrix_loc = glGetUniformLocation(shader_program, "model_matrix");
+    view_matrix_loc = glGetUniformLocation(shader_program, "view_matrix");
 }
 
 
@@ -230,7 +226,28 @@ void opengl_render_gameobject(struct GameObject* go){
 
     //glm_mat4_print(trans, stdout);
 
-    glUniformMatrix4fv(transform_loc, 1, GL_FALSE, (float*) trans);
+    glUniformMatrix4fv(model_matrix_loc, 1, GL_FALSE, (float*) trans);
+
+    vec3 camera_position = { sin(glfwGetTime()), 0.0f, 0.0f};
+    vec3 camera_forward = { 0.0f, 0.0f, -1.0f };
+    vec3 camera_right;
+    vec3 camera_up;
+    vec3 world_up = { 0.0f, 1.0f, 0.0f };
+    glm_cross(world_up, camera_forward, camera_right);
+    glm_normalize_to(camera_right, camera_right);
+    glm_cross(camera_forward, camera_right, camera_up);
+    glm_normalize_to(camera_up, camera_up);
+    mat4 view_matrix = {
+        camera_right[0], camera_right[1], camera_right[2], 0,
+        camera_up[0], camera_up[1], camera_up[2], 0,
+        camera_forward[0], camera_forward[1], camera_forward[2], 0,
+        camera_position[0], camera_position[1], camera_position[2], 1
+    };
+    vec3 camera_final_scale;
+    glm_vec3_mul(camera_scale, camera_window_scale, camera_final_scale);
+    glm_scale(view_matrix, camera_final_scale);
+
+    glUniformMatrix4fv(view_matrix_loc, 1, GL_FALSE, (float*) view_matrix);
 
     glUseProgram(shader_program);
     
@@ -248,6 +265,9 @@ bool opengl_should_close(){
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height){
+    camera_window_scale[0] = (float)viewport_width / (float)width;
+    camera_window_scale[1] = (float)viewport_height / (float)height;
+    printf("Camera Window Scale: %f, %f\n", camera_window_scale[0], camera_window_scale[1]);
     glViewport(0, 0, width, height);
 }
 
