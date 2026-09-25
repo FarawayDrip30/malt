@@ -16,15 +16,15 @@
 const int viewport_width = 600;
 const int viewport_height = 600;
 
-vec3 camera_scale = { 1.0f, 1.0f, 1.0f };
+vec3 camera_scale = { 1.0f / (float)viewport_width, 1.0f / (float)viewport_height, 1.0f };
 // Ensures window size does not affect scale
 vec3 camera_window_scale = { 1.0f, 1.0f, 1.0f };
 
 float vertices[] = {
     // positions         // colors          // texture coordinates
-     0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 1.0f,     // bottom right
-    -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f,     // bottom left
-     0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  0.5f, 0.0f,     // top 
+     64.0f, -64.0f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 1.0f,     // bottom right
+    -64.0f, -64.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f,     // bottom left
+     0.0f,  64.0f, 0.0f,  0.0f, 0.0f, 1.0f,  0.5f, 0.0f,     // top 
 };
 unsigned int indices[] = {  // note that we start from 0!
     0, 1, 2,  // first Triangle
@@ -228,7 +228,7 @@ void opengl_render_gameobject(struct GameObject* go){
 
     glUniformMatrix4fv(model_matrix_loc, 1, GL_FALSE, (float*) trans);
 
-    vec3 camera_position = { sin(glfwGetTime()), 0.0f, 0.0f};
+    vec3 camera_position = { sin(glfwGetTime()) * 600.0f, 0.0f, 0.0f};
     vec3 camera_forward = { 0.0f, 0.0f, -1.0f };
     vec3 camera_right;
     vec3 camera_up;
@@ -237,14 +237,21 @@ void opengl_render_gameobject(struct GameObject* go){
     glm_normalize_to(camera_right, camera_right);
     glm_cross(camera_forward, camera_right, camera_up);
     glm_normalize_to(camera_up, camera_up);
+
+    // We can apply this to position and scale to turn screen space values to world space 
+    // TODO There is probably a more elegant way to do this... maybe do it in the projection matrix when I add that?
+    vec3 camera_final_scale;
+    glm_vec3_mul(camera_scale, camera_window_scale, camera_final_scale);
+
+    glm_vec3_mul(camera_position, camera_final_scale, camera_position);
+
     mat4 view_matrix = {
         camera_right[0], camera_right[1], camera_right[2], 0,
         camera_up[0], camera_up[1], camera_up[2], 0,
         camera_forward[0], camera_forward[1], camera_forward[2], 0,
         camera_position[0], camera_position[1], camera_position[2], 1
     };
-    vec3 camera_final_scale;
-    glm_vec3_mul(camera_scale, camera_window_scale, camera_final_scale);
+    
     glm_scale(view_matrix, camera_final_scale);
 
     glUniformMatrix4fv(view_matrix_loc, 1, GL_FALSE, (float*) view_matrix);
