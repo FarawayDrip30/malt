@@ -1,7 +1,7 @@
 CC=gcc
 
 IFLAGS = -Iinclude -ID:/main/others/includes
-LFLAGS = -LD:/main/others/libraries/glfw -lglfw3 -lgdi32 -LD:/main/others/libraries/portaudio/bin -llibportaudio-2
+LFLAGS = -LD:/main/others/libraries/glfw -lglfw3 -lgdi32 -L./ -lportaudio-2
 CFLAGS = -Wdiscarded-qualifiers $(IFLAGS) $(LFLAGS)
 
 SOURCE_DIR=src
