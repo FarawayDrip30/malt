@@ -32,6 +32,9 @@ int main(){
 
     while(!graphics_handler->should_window_close()){
         // Update
+        glfw_input_update();
+        //print_input_down();
+
         set_gameobject_pos(player, 0, sin(glfwGetTime()) * 100);
 
         // Render
