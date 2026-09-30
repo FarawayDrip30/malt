@@ -9,6 +9,6 @@ out vec2 texCoord;
 
 void main()
 {
-   gl_Position = view_matrix * model_matrix * vec4(aPos.x, aPos.y, aPos.z, 1.0);
+   gl_Position = view_matrix * model_matrix * vec4(aPos, 1.0);
    texCoord = aTexCoord;
 }

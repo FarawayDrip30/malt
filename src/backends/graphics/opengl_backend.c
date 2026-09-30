@@ -140,7 +140,7 @@ unsigned int opengl_generate_vao(){
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(0));
     glEnableVertexAttribArray(0);
     // Vertex Texture Coordinates
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
@@ -224,12 +224,12 @@ int opengl_initialise(){
 void opengl_render_start(){
     processInput(opengl_window);
 
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Create and apply camera matrix (view matrix)
-    vec3 camera_position = { sin(glfwGetTime()) * 1.0f, 0.0f, 0.0f};
-    //vec3 camera_position = { 0.0f, 0.0f, 0.0f};
+    //vec3 camera_position = { sin(glfwGetTime()) * 1.0f, 0.0f, 0.0f};
+    vec3 camera_position = { 0.0f, 0.0f, 0.0f};
     vec3 camera_forward = { 0.0f, 0.0f, -1.0f };
     vec3 camera_right;
     vec3 camera_up;
