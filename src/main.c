@@ -22,7 +22,7 @@ int main(){
 
     struct TextureData* player_tex_data = load_texture_data("res/img/wall.jpg");
     unsigned int player_tex_id = graphics_handler->generate_texture(player_tex_data);
-    player = create_gameobject(0.0f, 0.0f, 0.0f, 0, player_tex_id);
+    player = create_gameobject(0.0f, 0.0f, 64.0f, 64.0f, 0.0f, 0.0f, player_tex_id);
 
     while(!graphics_handler->should_window_close()){
         // Update

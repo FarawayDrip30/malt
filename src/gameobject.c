@@ -3,10 +3,15 @@
 #include "gameobject.h"
 
 
-struct GameObject* create_gameobject(float x, float y, float rot, unsigned int mesh_id, unsigned int tex_id){
+struct GameObject* create_gameobject(float x, float y, float width, float height, float rot, unsigned int mesh_id, unsigned int tex_id){
     struct GameObject* go = (struct GameObject*) malloc(sizeof(struct GameObject));
+
     glm_mat4_identity(go->trans_mat);
+    go->trans_mat[0][0] = width;
+    go->trans_mat[1][1] = height;
+
     set_gameobject_pos(go, x, y);
+    
     go->rot = rot;
     go->mesh_id = mesh_id;
     go->tex_id = tex_id;
