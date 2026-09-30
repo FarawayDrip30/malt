@@ -16,9 +16,7 @@
 const int viewport_width = 600;
 const int viewport_height = 600;
 
-vec3 camera_scale = { 1.0f / (float)viewport_width, 1.0f / (float)viewport_height, 1.0f };
-// Ensures window size does not affect scale
-vec3 camera_window_scale = { 1.0f, 1.0f, 1.0f };
+vec3 camera_scale = { 1.0f / (float) viewport_width, 1.0f / (float) viewport_height, 1.0f };
 
 float vertices[] = {
     // positions         // colors          // texture coordinates
@@ -206,6 +204,30 @@ void opengl_render_start(){
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    // Create and apply camera matrix (view matrix)
+    vec3 camera_position = { sin(glfwGetTime()) * 1.0f, 0.0f, 0.0f};
+    //vec3 camera_position = { 0.0f, 0.0f, 0.0f};
+    vec3 camera_forward = { 0.0f, 0.0f, -1.0f };
+    vec3 camera_right;
+    vec3 camera_up;
+    vec3 world_up = { 0.0f, 1.0f, 0.0f };
+    glm_cross(world_up, camera_forward, camera_right);
+    glm_normalize_to(camera_right, camera_right);
+    glm_cross(camera_forward, camera_right, camera_up);
+    glm_normalize_to(camera_up, camera_up);
+
+    mat4 view_matrix = {
+        camera_right[0], camera_right[1], camera_right[2], 0,
+        camera_up[0], camera_up[1], camera_up[2], 0,
+        camera_forward[0], camera_forward[1], camera_forward[2], 0,
+        // Position of camera
+        camera_position[0], camera_position[1], camera_position[2], 1
+    };
+    
+    glm_scale(view_matrix, camera_scale);
+
+    glUniformMatrix4fv(view_matrix_loc, 1, GL_FALSE, (float*) view_matrix);
 }
 
 void opengl_render_finish(){
@@ -224,37 +246,7 @@ void opengl_render_gameobject(struct GameObject* go){
     glm_mat4_copy(go->trans_mat, trans);
     glm_rotate(trans, go->rot, z_axis_rot);
 
-    //glm_mat4_print(trans, stdout);
-
     glUniformMatrix4fv(model_matrix_loc, 1, GL_FALSE, (float*) trans);
-
-    vec3 camera_position = { sin(glfwGetTime()) * 600.0f, 0.0f, 0.0f};
-    vec3 camera_forward = { 0.0f, 0.0f, -1.0f };
-    vec3 camera_right;
-    vec3 camera_up;
-    vec3 world_up = { 0.0f, 1.0f, 0.0f };
-    glm_cross(world_up, camera_forward, camera_right);
-    glm_normalize_to(camera_right, camera_right);
-    glm_cross(camera_forward, camera_right, camera_up);
-    glm_normalize_to(camera_up, camera_up);
-
-    // We can apply this to position and scale to turn screen space values to world space 
-    // TODO There is probably a more elegant way to do this... maybe do it in the projection matrix when I add that?
-    vec3 camera_final_scale;
-    glm_vec3_mul(camera_scale, camera_window_scale, camera_final_scale);
-
-    glm_vec3_mul(camera_position, camera_final_scale, camera_position);
-
-    mat4 view_matrix = {
-        camera_right[0], camera_right[1], camera_right[2], 0,
-        camera_up[0], camera_up[1], camera_up[2], 0,
-        camera_forward[0], camera_forward[1], camera_forward[2], 0,
-        camera_position[0], camera_position[1], camera_position[2], 1
-    };
-    
-    glm_scale(view_matrix, camera_final_scale);
-
-    glUniformMatrix4fv(view_matrix_loc, 1, GL_FALSE, (float*) view_matrix);
 
     glUseProgram(shader_program);
     
@@ -272,10 +264,22 @@ bool opengl_should_close(){
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height){
-    camera_window_scale[0] = (float)viewport_width / (float)width;
-    camera_window_scale[1] = (float)viewport_height / (float)height;
-    printf("Camera Window Scale: %f, %f\n", camera_window_scale[0], camera_window_scale[1]);
-    glViewport(0, 0, width, height);
+    int new_width = 0;
+    int new_height = 0;
+
+    // We will make the viewport as big as the smallest dimension of the window so it fits the best
+    // The other dimension will take the percentage of the other dimension in comparison to the new size
+    if(width < height){
+        new_width = width;
+        new_height = viewport_height * ((float) width / (float) viewport_width);
+    }
+    else{
+        new_width = viewport_height * ((float) height / (float) viewport_height);
+        new_height = height;
+    }
+
+    // Set viewport to middle of screen
+    glViewport((float)width/2.0f - (float)new_width/2.0f, (float)height/2.0f - (float)new_height/2.0f, new_width, new_height);
 }
 
 void processInput(GLFWwindow *window){
