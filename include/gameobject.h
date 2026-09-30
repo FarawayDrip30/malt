@@ -12,3 +12,4 @@ struct GameObject{
 struct GameObject* create_gameobject(float x, float y, float width, float height, float rot, unsigned int mesh_id, unsigned int tex_id);
 
 void set_gameobject_pos(struct GameObject* go, float x, float y);
+void set_gameobject_scale(struct GameObject* go, int w, int h);

@@ -7,11 +7,10 @@ struct GameObject* create_gameobject(float x, float y, float width, float height
     struct GameObject* go = (struct GameObject*) malloc(sizeof(struct GameObject));
 
     glm_mat4_identity(go->trans_mat);
-    go->trans_mat[0][0] = width;
-    go->trans_mat[1][1] = height;
-
-    set_gameobject_pos(go, x, y);
     
+    set_gameobject_scale(go, width, height);
+    set_gameobject_pos(go, x, y);
+
     go->rot = rot;
     go->mesh_id = mesh_id;
     go->tex_id = tex_id;
@@ -21,4 +20,9 @@ struct GameObject* create_gameobject(float x, float y, float width, float height
 void set_gameobject_pos(struct GameObject* go, float x, float y){
     go->trans_mat[3][0] = x;
     go->trans_mat[3][1] = y;
+}
+
+void set_gameobject_scale(struct GameObject* go, int w, int h){
+    go->trans_mat[0][0] = w;
+    go->trans_mat[1][1] = h;
 }
