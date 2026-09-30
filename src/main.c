@@ -3,6 +3,8 @@
 #include <math.h>
 #include <time.h>
 
+//#include <portaudio/portaudio.h>
+
 #include "backends/graphics/graphics_handler.h"
 #include "backends/input/glfw_input.h"
 
@@ -17,8 +19,72 @@ int viewport_height = 600;
 int viewport_x = 0;
 int viewport_y = 0;
 
+struct AudioData {
+    float left_phase;
+    float right_phase;
+};
+
+/*
+static int portaudio_callback(const void* input_buffer, void* output_buffer, unsigned long frames_per_buffer, 
+const PaStreamCallbackTimeInfo* time_info, PaStreamCallbackFlags status_flags, void* user_data){
+    struct AudioData* data = (struct AudioData*) user_data;
+    float* out = (float*) output_buffer;
+
+    for(int i = 0; i < frames_per_buffer; i++){
+        *out++ = data->left_phase;
+        *out++ = data->right_phase;
+
+        // Sawtooth phaser
+        data->left_phase += 0.01f;
+        // When signal reaches top, drop back down
+        if(data->left_phase >= 1.0f){
+            data->left_phase -= 2.0f;
+        }
+        // Higher pitch to distinguish left and right
+        data->left_phase += 0.03f;
+        if(data->left_phase >= 1.0f){
+            data->left_phase -= 2.0f;
+        }
+    }
+
+    return 0;
+}
+    */
+
 int main(){
     printf("Hello, World!\n");
+
+    //PaError err;
+    /*
+    err = Pa_Initialize();
+    if(err != paNoError){
+        printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
+    }
+
+    PaStream* stream;
+    struct AudioData data;
+    err = Pa_OpenDefaultStream(&stream, 0, 2, paFloat32, 44100, 256, portaudio_callback, &data);
+    if(err != paNoError){
+        printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
+    }
+
+    err = Pa_StartStream(&stream);
+    if(err != paNoError){
+        printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
+    }
+
+    Pa_Sleep(5000);
+
+    err = Pa_StopStream(&stream);
+    if(err != paNoError){
+        printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
+    }
+
+    err = Pa_CloseStream(&stream);
+    if(err != paNoError){
+        printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
+    }
+        */
 
     struct GraphicsHandler* graphics_handler = &opengl_graphics;
 
@@ -55,6 +121,13 @@ int main(){
 
     free_texture_data(wall_tex_data);
     free_texture_data(grin_tex_data);
+
+    /*
+    err = Pa_Terminate();
+    if(err != paNoError){
+        printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
+    }
+        */
 
     return 0;
 }
