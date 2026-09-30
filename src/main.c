@@ -12,6 +12,11 @@
 struct GameObject* bg;
 struct GameObject* player;
 
+int viewport_width = 600;
+int viewport_height = 600;
+int viewport_x = 0;
+int viewport_y = 0;
+
 int main(){
     printf("Hello, World!\n");
 

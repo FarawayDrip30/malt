@@ -1,5 +1,5 @@
 #include "backends/input/glfw_input.h"
-
+#include "main.h"
 
 
 int input_down[] = {
@@ -13,8 +13,8 @@ int input_down[] = {
     0, // 7 - Fire1
     0, // 8 - Fire2
 };
-float input_vector[][2] = {
-	{ 0.0f, 0.0f }
+int input_vector[][2] = {
+	{ 0, 0 }
 };
 
 int key_map[][2] = {
@@ -63,8 +63,8 @@ void glfw_mouse_button_pressed(GLFWwindow* window, int button, int action, int m
 	}
 }
 void glfw_cursor_position(GLFWwindow* window, double x, double y){
-    input_vector[mouse][0] = x;
-	input_vector[mouse][1] = y;
+    input_vector[mouse][0] = x - viewport_x;
+	input_vector[mouse][1] = y - viewport_y;
 }
 
 void glfw_input_update(){

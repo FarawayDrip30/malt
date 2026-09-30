@@ -12,11 +12,9 @@
 #include "utils/file_utils.h"
 #include "backends/graphics/opengl_backend.h"
 #include "backends/graphics/graphics_handler.h"
+#include "main.h"
 
-const int viewport_width = 600;
-const int viewport_height = 600;
-
-vec3 camera_scale = { 1.0f / (float) viewport_width, 1.0f / (float) viewport_height, 1.0f };
+vec3 camera_scale = { 1.0f, 1.0f, 1.0f };
 
 /*
 float vertices[] = {
@@ -194,6 +192,7 @@ int opengl_initialise(){
     glViewport(0, 0, 600, 600);
     // Function to call on window resize
     glfwSetFramebufferSizeCallback(opengl_window, framebuffer_size_callback);
+    framebuffer_size_callback(opengl_window, viewport_width, viewport_height);
 
     // Set texture settings
     // Textures repeat
@@ -218,6 +217,10 @@ int opengl_initialise(){
 
     model_matrix_loc = glGetUniformLocation(shader_program, "model_matrix");
     view_matrix_loc = glGetUniformLocation(shader_program, "view_matrix");
+
+
+    camera_scale[0] = 1.0f / (float) viewport_width;
+    camera_scale[1] = 1.0f / (float) viewport_height;
 }
 
 
@@ -301,7 +304,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height){
     }
 
     // Set viewport to middle of screen
-    glViewport((float)width/2.0f - (float)new_width/2.0f, (float)height/2.0f - (float)new_height/2.0f, new_width, new_height);
+    viewport_x = ((float) width / 2.0f) - ((float) new_width / 2.0f);
+    viewport_y = ((float) height / 2.0f) - ((float) new_height / 2.0f);
+    glViewport(viewport_x, viewport_y, new_width, new_height);
 }
 
 void processInput(GLFWwindow *window){
