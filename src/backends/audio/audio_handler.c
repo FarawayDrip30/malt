@@ -2,6 +2,9 @@
 
 #include "backends/audio/audio_handler.h"
 
+float music_pitch = 1;
+float music_volume = 0.2f;
+
 static int portaudio_test_callback(const void* input_buffer, void* output_buffer, unsigned long frames_per_buffer, 
 const PaStreamCallbackTimeInfo* time_info, PaStreamCallbackFlags status_flags, void* user_data){
     struct AudioData* data = (struct AudioData*) user_data;
@@ -30,8 +33,7 @@ const PaStreamCallbackTimeInfo* time_info, PaStreamCallbackFlags status_flags, v
 PaStream* audio_stream;
 
 void audio_initialise(){
-    music_pitch = 1;
-    music_volume = 0.2f;
+    
 
     PaError err;
     

@@ -57,6 +57,7 @@ int main(){
         graphics_handler->render_gameobject(player);
 
         graphics_handler->render_finish();
+        
     }
 
     audio_terminate();
