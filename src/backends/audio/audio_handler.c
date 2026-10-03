@@ -5,7 +5,7 @@
 float music_pitch = 1;
 float music_volume = 0.2f;
 
-static int portaudio_test_callback(const void* input_buffer, void* output_buffer, unsigned long frames_per_buffer, 
+static int portaudio_callback(const void* input_buffer, void* output_buffer, unsigned long frames_per_buffer, 
 const PaStreamCallbackTimeInfo* time_info, PaStreamCallbackFlags status_flags, void* user_data){
     struct AudioData* data = (struct AudioData*) user_data;
     float* out = (float*) output_buffer;
@@ -33,8 +33,6 @@ const PaStreamCallbackTimeInfo* time_info, PaStreamCallbackFlags status_flags, v
 PaStream* audio_stream;
 
 void audio_initialise(){
-    
-
     PaError err;
     
     err = Pa_Initialize();
@@ -44,7 +42,7 @@ void audio_initialise(){
 
     
     struct AudioData data;
-    err = Pa_OpenDefaultStream(&audio_stream, 0, 2, paFloat32, 44100, 256, portaudio_test_callback, &data);
+    err = Pa_OpenDefaultStream(&audio_stream, 0, 2, paFloat32, 44100, 256, portaudio_callback, &data);
     if(err != paNoError){
         printf(  "PortAudio openstream error: %s\n", Pa_GetErrorText( err ) );
     }

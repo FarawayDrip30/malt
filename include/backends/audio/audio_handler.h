@@ -7,6 +7,8 @@ struct AudioData {
     float right_phase;
 };
 
+extern PaStream* audio_stream;
+
 extern float music_pitch;
 extern float music_volume;
 
