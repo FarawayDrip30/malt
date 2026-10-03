@@ -31,7 +31,6 @@ int mouse_map[][2] = {
     {GLFW_MOUSE_BUTTON_LEFT, fire1},
     {GLFW_MOUSE_BUTTON_RIGHT, fire2}
 };
-#define ALL_JOYSTICKS -1
 int controller_map[][3] = {
     {GLFW_GAMEPAD_BUTTON_A, up, ALL_JOYSTICKS},
     // TODO: having 2 controller buttons on one input means it will always be zero as it is fetched every frame and might be 0.

@@ -29,3 +29,10 @@ enum input_vector_enum {
 	mouse
 };
 
+extern int input_down[];
+extern int input_vector[][2];
+
+extern int key_map[][2];
+extern int mouse_map[][2];
+#define ALL_JOYSTICKS -1
+extern int controller_map[][3];
