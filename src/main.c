@@ -90,7 +90,7 @@ int main(){
         frame_end = system_get_time();
         frame_difference = frame_end - frame_start;
         if(frame_difference < fps_wait){
-            //game_process = false;
+            game_process = false;
             /*float sampleBuffer[(44100 * fps_wait - frame_difference) / 1000 * 2]; 
             for(int i = 0; i < (44100 * fps_wait - frame_difference) / 1000 * 2; i++){
                 sampleBuffer[i] = 10;
@@ -100,7 +100,7 @@ int main(){
             //system_sleep(1000);
         }
         else{
-            //game_process = true;
+            game_process = true;
         }
     }
 
