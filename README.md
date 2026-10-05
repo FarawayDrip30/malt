@@ -1,5 +1,5 @@
-## malt
-# v0.1.0
+# malt
+## oscillation (v0.1.0)
 ### whuh?
 
 malt is a game engine written in pure C (except for stb_image.h, according to github, but one day I will fix that...) that uses OpenGL to make 2D games.  
