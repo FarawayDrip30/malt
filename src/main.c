@@ -72,7 +72,7 @@ int main(){
 
             // Update
             glfw_input_update();
-            //print_input_down();
+            print_input_down();
 
             if(input_down[fire1]){
                 play_sound(1.0f, 1);

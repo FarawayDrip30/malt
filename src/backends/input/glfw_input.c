@@ -1,7 +1,8 @@
 #include "backends/input/glfw_input.h"
 #include "main.h"
 
-
+// If 1 == On
+// If 2 == Controller On
 int input_down[] = {
 	0, // 0 - Forwards
     0, // 1 - Backwards
@@ -81,7 +82,18 @@ void glfw_input_update(){
             for (int i = 0; i < sizeof(controller_map) / sizeof(controller_map[0]); i++) {
                 // Ensure the controller we're currently checking (j) should control this input
                 if(controller_map[i][2] == ALL_JOYSTICKS || controller_map[i][2] == j){
-                    input_down[controller_map[i][1]] = buttons[controller_map[i][0]];
+                    if(buttons[controller_map[i][0]] == 0){
+                        // Check if it's two (Controller On) because if it's one then a keyboard callback set it to on, 
+                        // and we don't want to override that because this is called each frame.
+                        if(input_down[controller_map[i][1]] == 2){
+                            input_down[controller_map[i][1]] = 0;
+                        }
+                    }
+                    else if(buttons[controller_map[i][0]] == 1){
+                        // Set to CONTROLLER ON
+                        input_down[controller_map[i][1]] = 2;
+                    }
+                    
                     // Don't return in case this button is binded to other input downs
 
                     //printf(" %i %i %i %i %i %i |||| ", down, i, controller_map[i][1], controller_map[i][0], buttons[controller_map[i][0]], buttons[10]);
